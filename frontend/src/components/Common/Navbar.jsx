@@ -39,21 +39,28 @@ function Navbar() {
   const [subLinks, setSubLinks] = useState([])
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    ;(async () => {
-      setLoading(true)
-      try {
-        const res = await apiConnector("GET", categories.CATEGORIES_API)
-        setSubLinks(res.data.data)
-        console.log(res.data.data)
-      } catch (error) {
-        console.log("Could not fetch Categories.", error)
+  const fetchCategories = async () => {
+    setLoading(true) // Start loading
+    try {
+      const res = await apiConnector("GET", categories.CATEGORIES_API)
+      // Check if the response structure is correct
+      if (res?.data?.data) {
+        setSubLinks(res.data.data) // Set the fetched categories
+        console.log(res.data.data) // Log the fetched categories
+      } else {
+        console.error("Invalid response structure", res)
       }
-      setLoading(false)
-    })()
-  }, [])
+    } catch (error) {
+      console.log("Could not fetch Categories.", error) // Log errors if any
+    } finally {
+      setLoading(false) // Stop loading regardless of success or failure
+    }
+  }
 
-  // console.log("sub links", subLinks)
+  useEffect(() => {
+    fetchCategories() // Call the async function
+  }, []) // Empty dependency array to run only once on mount
+
 
   const matchRoute = (route) => {
     return matchPath({ path: route }, location.pathname)
